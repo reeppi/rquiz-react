@@ -12,6 +12,7 @@ import logoGoogle from './images/google_logo.png';
 import logoFacebook from './images/facebook_logo.png';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Spinner from 'react-bootstrap/Spinner';
 
 
 const Main = observer(() => {
@@ -55,6 +56,27 @@ const Main = observer(() => {
         setShowQuizList(!showQuizList);
     }
 
+    const openQuiz = () =>{
+        if ( service.quizName)
+            navigate("/"+service.quizName+"/1")
+        else
+         service.setMsg("Anna visalle nimi")
+    }
+    const editQuiz = () =>{
+        if ( service.quizName)
+            navigate("/"+service.quizName+"/edit")
+        else
+            service.setMsg("Anna visalle nimi")
+    }
+
+
+    const openScores= () =>{
+        if ( service.quizName)
+            navigate("/"+service.quizName+"/scores")
+        else
+            service.setMsg("Anna visalle nimi")
+    }
+
     return (
         <>
         <div style={{display:"flex", width:"100%", justifyContent:"center", flexDirection:"column"}} >
@@ -76,6 +98,7 @@ const Main = observer(() => {
         <Accordion.Item eventKey="0">
         <Accordion.Header>Luettelo julkisista visoista</Accordion.Header>
         <Accordion.Body>
+        { loading && <div style={{width:"100%",display:"flex",justifyContent:"center"}}><Spinner animation="border" variant="primary" /></div>}
          {
             service.quizList?.map((e:any,index)=><Button key={index} variant="Secondary" className="rounded-pill" onClick={ ()=>service.setQuizName(e.name)}>{e.name}</Button>)
          }
@@ -85,13 +108,13 @@ const Main = observer(() => {
             <PadTop/>
             <div style={{display:"flex", width:"100%", justifyContent:"center", flexDirection:"column"}} >
             <div> 
-                <Link to={"/"+service.quizName+"/1"} ><Button style={{width:"70%"}} variant="primary">Avaa visa {service.quizName} </Button></Link>
-                <Link to={"/"+service.quizName+"/scores"} ><Button style={{width:"30%"}} variant="light">Pistetaulu</Button></Link>
+                <Button onClick={()=>openQuiz()} style={{width:"70%"}} variant="primary">Avaa visa {service.quizName} </Button>
+                 <Button onClick={()=>openScores()}  style={{width:"30%"}} variant="light">Pistetaulu</Button>
             </div>
             
             { service.logged &&
             <PadTop>
-            <Link to={service.quizName+"/edit"}><Button style={{width:"100%"}} variant="light">Muokkaa visaa {service.quizName}</Button></Link> 
+            <Button onClick={()=>editQuiz()} style={{width:"100%"}} variant="light">Muokkaa visaa {service.quizName}</Button>
             </PadTop>
             }
 

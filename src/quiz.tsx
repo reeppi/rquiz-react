@@ -22,7 +22,7 @@ const Quiz = observer( () => {
 
     var qName:string ="test";
     if ( quizName != "" )
-        qName=String(quizName);
+        qName=String(quizName).toLowerCase();
 
     var qIndex:number = 0; 
     if ( qNumber )
@@ -44,6 +44,7 @@ const Quiz = observer( () => {
     }
 
     useEffect ( () => { 
+        service.setMsg("");
         loadQuestion();
     }, []); 
 
@@ -56,12 +57,15 @@ const Quiz = observer( () => {
 
     return (
         <>
-            <strong>{ qName }</strong>
-            { qIndex+1} /  {service.quiz?.questions.length}<br/>
+           
+            { service.quiz &&
+                <> <strong>{ qName }</strong></>  
+            }
             {  loading && <div style={{width:"100%",display:"flex",justifyContent:"center"}}><Spinner animation="border" variant="primary" /></div>}
             {  !loading && service.quiz && 
                 <>
-                    { service.quiz.title}<br/>
+                    { service.quiz.title}<hr/>
+                    { qIndex+1} /  {service.quiz?.questions.length}<br/>
                     { service.quiz.questions[qIndex].text } <br/>
                     
                     <div style={{display:"flex", border:"1px", justifyContent:"spaceBetween"}}>
@@ -92,6 +96,9 @@ const Quiz = observer( () => {
                     <ImgModal url={fileUrl+"/"+qName+"/images/"+service.quiz.questions[qIndex].image}  show={imgShow} onHide={() => setImgShow(false)} />
                 </>
             }
+            { !service.quiz &&  <Link to={"/"}><Button style={{width:"100%"}} variant="primary" onClick={()=>{ }}>Aloitussivulle</Button></Link> }
+
+            
 
             <div style={{display:"flex",justifyContent:"center"}}>{ service.msg }</div>
             <PadTop/>
@@ -125,4 +132,5 @@ const ImgModal = (props:any) => {
     );
   }
   
+
 export default Quiz;

@@ -23,7 +23,7 @@ const Scoreboard = observer( () => {
 
     var qName:string ="test";
     if ( quizName != "" )
-        qName=String(quizName);
+        qName=String(quizName).toLowerCase();
 
     const loadScoreboard= async ()=>
     {

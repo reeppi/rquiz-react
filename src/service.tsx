@@ -18,7 +18,7 @@ import axios from 'axios';
 
 @model("store/RootStore")
 export class RootStore extends Model({
-  quizName: prop<string>("hopovisa").withSetter(),
+  quizName: prop<string>("").withSetter(),
   logged: prop<boolean>(false).withSetter(),
   msg: prop<string>("").withSetter(),
   quiz: prop<Models.quizClass | null>(),
@@ -34,7 +34,7 @@ export class RootStore extends Model({
 
     @modelAction 
     logOut= () => {
-      window.sessionStorage.removeItem("JWT",);
+      window.sessionStorage.removeItem("JWT",); 
       this.setLogged(false);
     }
 
@@ -42,6 +42,34 @@ export class RootStore extends Model({
     createEmptyQuiz = () => {
       this.quiz =  new Models.quizClass ( { name : "", title : "", public: false,  questions : [] })
     }
+ 
+  @modelFlow 
+  addScore = _async ( function*(this:RootStore,qName:string,name:string,score:number)
+  {
+    try {
+      var config = {
+        headers: {'Authorization': this.getToken},
+      };
+      const res  = yield* _await( Timeout.wrap( axios.get(apiUrl+"/addscore?name="+qName+"&scorename="+name+"&score="+score.toString(),config),defaultTimeout,"deleteQuiz timeout" ) );
+      if ( res.data)
+      {
+        if ( res.data.score)
+          return {done:true,error:""};
+        else
+        {
+          this.setMsg(res.data.error);
+          return {done:false,error:res.data.error};
+        }
+      }
+      this.setMsg("Tuntematon virhe");
+      return {done:false,error:"Tuntematon virhe"};
+    } catch (err) {
+      this.setMsg((err as Error).message);
+      return {done:false,error:(err as Error).message};
+    }      
+  })
+
+
 
     @modelFlow
     fetchScores = _async( function*(this:RootStore,qName:string) {
@@ -108,7 +136,7 @@ export class RootStore extends Model({
       {
         if (res.data.done)
         {
-          this.quiz = null;
+          this.createEmptyQuiz();
           this.setMsg(res.data.done);
           return res.data.done;
         }

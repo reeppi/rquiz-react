@@ -6,8 +6,8 @@ import { audioEditClass, questionClass, quizClass } from './models';
 import { observer } from "mobx-react";
 import React, { useState, useEffect, createContext, useRef } from 'react';
 import Spinner from 'react-bootstrap/Spinner';
-import { removeKeystoneIds, cleanData, PadTop } from './helper';
-import {onSnapshot, applySnapshot,getSnapshot } from "mobx-keystone"
+import { cleanData, PadTop } from './helper';
+import { onSnapshot, applySnapshot,getSnapshot } from "mobx-keystone"
 import Form from 'react-bootstrap/Form';
 import { fileUrl } from "./helper";
 import Modal from 'react-bootstrap/Modal';
@@ -40,22 +40,26 @@ const Edit = observer( () => {
 
     var qName:string ="test";
     if ( quizName != "" )
-        qName=String(quizName);
+        qName=String(quizName).toLowerCase();;
     
     useEffect ( () => { 
       loadQuiz();
     }, []); 
     
     const loadQuiz = async ()=>
-    {
+    {        
         console.log("REFRESH "+qName) 
         setLoading(true); 
-        const { error, dialog, deny } =await service.fetchQuiz(qName,true);
-        console.log("dialog : "+dialog);
-        if ( dialog && !deny )
+
+        var data = {error:"",dialog:false,deny:false};
+        if ( service.quiz == null || ( service.quiz && qName != service.quiz.name))
+        data =await service.fetchQuiz(qName,true);    
+        
+        console.log("dialog : "+data.dialog);
+
+        if ( data.dialog && !data.deny )
             service.createEmptyQuiz();
-            
-        console.log("deny : "+deny);
+
         setLoading(false);
         console.log(cleanData(service.quiz));
         storeSnapshots.length =0;
@@ -300,7 +304,7 @@ const QuestionEntry = observer( ( {question,ix,saveQ}:{question:questionClass,ix
         
         { question.image !="" &&
         <InputGroup>
-        <Button disabled={showProgress} style={{width:"50%"}} onClick={()=>{fileUpload.current?.click();}} variant="primary">Lisää kuva</Button>
+        <Button disabled={showProgress} style={{width:"50%"}} onClick={()=>{fileUpload.current?.click();}} variant="primary">Vaihda kuva</Button>
         <Button style={{width:"50%"}} onClick={()=>{setShowConfirmModalDelImage(true)}} variant="danger">Poista kuva</Button>
         </InputGroup>
         }
@@ -310,10 +314,10 @@ const QuestionEntry = observer( ( {question,ix,saveQ}:{question:questionClass,ix
         { !recording && !question.audio  &&  <Button disabled={showProgress}  style={{width:"100%"}} onClick={()=>{initiateRecording()}} variant="primary">Nauhoita äänite</Button>}
 
         { !recording && question.audio  && 
-        <>
+         <InputGroup>
         <Button disabled={showProgress} style={{width:"50%"}} onClick={()=>{initiateRecording()}} variant="primary">Nauhoita äänite</Button>
         <Button style={{width:"50%"}} onClick={()=>{setShowConfirmModalDelRecord(true)}} variant="danger">Poista äänite</Button>
-        </>
+        </InputGroup>
         }
 
         { recording && <Button style={{width:"100%"}} onClick={()=>{stopRecording()}} variant="primary">Pysäytä nauhoitus {seconds}</Button> }
