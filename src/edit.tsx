@@ -201,7 +201,7 @@ const QuestionEntry = observer( ( {question,ix,saveQ}:{question:questionClass,ix
     secRef.current=0;
     timerId=setInterval(()=>{ 
       secRef.current++;
-      setSeconds(secRef.current);if ( secRef.current >=5 ) stopRecording(); },1000); 
+      setSeconds(secRef.current);if ( secRef.current >=60 ) stopRecording(); },1000); 
     }
 
     const errorCallback = (error:any) => {
